@@ -45,6 +45,3 @@ class TaskManager:
 
     def __getitem__(self, _id):
         pass
-
-    # Should I create a separate Task class (if so, do I want to do it as a separate file),
-    # where I could add properties such as (task_id, creator, type...) 

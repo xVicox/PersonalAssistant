@@ -1,25 +1,23 @@
-from task_manager import TaskManager
-from task import Task
+from expense import Expense
+from expense_tracker import ExpenseTracker
 
-task1 = Task("Joe",
-            "Shopping",
-            "Need to go shopping",
-            "Errands")
-task2 = Task("Pipin",
-            "Learn to code",
-            "Daily coding routine",
-            "Education")
+expense_tracker = ExpenseTracker()
 
-
-task_manager = TaskManager()
-task_manager.add_task(task1)
-task_manager.add_task(task2)
-
-task_manager.remove_task("1")
-
-task_manager.get_tasks()
+#make category inputs lowercase !!!!
+exp1 = Expense("ESP32 - Super Starter Kit", 47.5, "hobbies")
+exp2 = Expense("ESP32 NodeMCU Module WLAN WiFi Dev Kit", 25.2, "hobbies")
+exp3 = Expense("5 x KY-015 DHT 11 Temperature Sensor", 13.1, "hobbies")
+exp4 = Expense("J.R.R. Tolkien - Hobbit", 7.5, "education")
 
 
+expense_tracker.add_expense(exp1)
+expense_tracker.add_expense(exp2)
+expense_tracker.add_expense(exp3)
+expense_tracker.add_expense(exp4)
+
+print("==================")
+expense_tracker.show_expenses("hobbies")
+print("==================")
 
 
 
