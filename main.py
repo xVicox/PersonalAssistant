@@ -1,23 +1,47 @@
-from expense import Expense
-from expense_tracker import ExpenseTracker
+import os
+import requests
 
-expense_tracker = ExpenseTracker()
+from alarm_clock import PAAlarmClock
+from pa_translator import PATranslator
+from api_handler import APIHandler
 
-#make category inputs lowercase !!!!
-exp1 = Expense("ESP32 - Super Starter Kit", 47.5, "hobbies")
-exp2 = Expense("ESP32 NodeMCU Module WLAN WiFi Dev Kit", 25.2, "hobbies")
-exp3 = Expense("5 x KY-015 DHT 11 Temperature Sensor", 13.1, "hobbies")
-exp4 = Expense("J.R.R. Tolkien - Hobbit", 7.5, "education")
+translator = PATranslator()
+handler = APIHandler()
+
+subtitle_path = "D:/Filmovi i Serije/Crtani/Ilya Murometc/Ilya Muromets i Solovey Razboynik.txt"
+text = "Great first attempt! Your read_file method is already functional and well-structured. It includes both reading the file and basic error handling, which is excellent. Here’s a breakdown of what you’ve done:"
+mp3_file = "D:/Download/SoulSeek/complete/chibiotaku/driving_backup/knight rider - theme song.mp3"
+#Read the file
+#subtitle_raw = translator.read_file(subtitle_path)
+# Get rid of new lines and timestamps -->
+#subtitle = translator.extract_text_lines(subtitle_raw)
+
+#chunks = translator.group_lines_into_chunks(subtitle)
+
+#alarm_clock = PAAlarmClock()
+#alarm_clock.set_time(mp3_file)
 
 
-expense_tracker.add_expense(exp1)
-expense_tracker.add_expense(exp2)
-expense_tracker.add_expense(exp3)
-expense_tracker.add_expense(exp4)
 
-print("==================")
-expense_tracker.show_expenses("hobbies")
-print("==================")
+the_file = translator.read_file(subtitle_path)
+extracted_subs = translator.extract_text_lines(the_file)
+chunks = translator.group_lines_into_chunks(extracted_subs)
+request_body = translator.prepare_request_body(chunks)
+
+response = handler.translate_text(request_body,"sr","en")
+
+print(response)
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    print("Start")
+
+
 
 
 
