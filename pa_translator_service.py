@@ -1,11 +1,15 @@
 import requests
 import re
 
-class PATranslator:
+class PATranslatorService:
 
-    def __init__(self,source_lang, target_lang):
-        self._source_lang = source_lang
-        self._target_lang = target_lang
+    def __init__(self, payload):
+
+        # getting the payload ready for processing
+        self._path = payload.get_path()
+        self._dir_path = payload.get_dir_path()
+        self._source_lang = payload.get_source_lang()
+        self._target_lang = payload.get_target_lang()
 
         # Sets the maximum number of characters to be handled at once. Defaults to 2000, which is considered optimal for Lingva Translate API requests.
         self._max_chars = 2000
@@ -24,9 +28,11 @@ class PATranslator:
             Exception: Any other unexpected errors during file reading.
             """
         try:
-            with open(file_path, "r", encoding="utf-8") as file:
-                content = [line.strip() for line in file.readlines()]
-                return content # Returns a list of strings
+            # with open(file_path, "r", encoding="utf-8") as file:
+            with open(file_path, "r", encoding="latin-1") as file:
+                raw_data = file.read()  # Read the entire content at once
+                content = raw_data.strip().split("\n")  # Split into lines after reading
+                return content  # Returns a list of strings
         except FileNotFoundError:
             print(f"File not found: {file_path}")
             return []
@@ -93,8 +99,8 @@ class PATranslator:
         Returns:
             list: A list of subtitle lines with timestamps removed.
         """
-        subs_without_timestamps = PATranslator.remove_timestamps(sub_lines)
-        PATranslator.separate_seq_nums_and_timestamps(self, sub_lines)
+        subs_without_timestamps = PATranslatorService.remove_timestamps(sub_lines)
+        PATranslatorService.separate_seq_nums_and_timestamps(self, sub_lines)
         return subs_without_timestamps
 
     @staticmethod
@@ -162,7 +168,7 @@ class PATranslator:
         chunk = ""
 
         for line in subs_lines:
-            line = PATranslator.line_cleanup(line)
+            line = PATranslatorService.line_cleanup(line)
 
             if len(chunk) <= self._max_chars - len(line):
                 if line.strip().isdigit():
@@ -214,8 +220,8 @@ class PATranslator:
 
         for chunk  in chunks:
             chunk = chunk.strip().replace("\n", " ")
-            translation = PATranslator.translate_text(source_lang, target_lang, chunk)
-            translation = PATranslator.line_reassemble(translation)
+            translation = PATranslatorService.translate_text(source_lang, target_lang, chunk)
+            translation = PATranslatorService.line_reassemble(translation)
             translated_chunks.append(translation)
 
         return translated_chunks
@@ -268,8 +274,10 @@ class PATranslator:
         Raises:
            Exception: If an error occurs during the file writing process (e.g., file permission issues).
         """
+        print(f"Content: {content}")
         try:
             with open(file_path, 'w', encoding='utf-8') as file:
+                print(f"File: {file}")
                 for line in content:
                     line = line + "\n"
                     file.write(line)
@@ -277,3 +285,14 @@ class PATranslator:
             print(f"File successfully written to {file_path}")
         except Exception as e:
             print(f"Error writing to file: {e}")
+
+    def process_translation(self):
+        # get the raw subtitle lines from source file
+        unprocessed_subtitle = self.read_file(self._path)
+        # process subtitles, removing timestamps from subtitles + getting ready for later reassembly
+        processed_subtitle = self.process_subtitles(unprocessed_subtitle)
+        #create chunks
+        chunks = self.create_chunks(processed_subtitle)
+        translated_chunks = self.translate_chunks(chunks, self._source_lang, self._target_lang)
+        reassembled_chunks = self.reassemble_subs(translated_chunks)
+        self.write_to_file(reassembled_chunks, self._dir_path)
