@@ -3,8 +3,7 @@ import re
 
 class PATranslatorService:
 
-    def __init__(self, payload):
-
+    def __init__(self, payload, ):
         # getting the payload ready for processing
         self._path = payload.get_path()
         self._dir_path = payload.get_dir_path()
@@ -274,15 +273,16 @@ class PATranslatorService:
         Raises:
            Exception: If an error occurs during the file writing process (e.g., file permission issues).
         """
-        print(f"Content: {content}")
         try:
             with open(file_path, 'w', encoding='utf-8') as file:
-                print(f"File: {file}")
                 for line in content:
                     line = line + "\n"
                     file.write(line)
+            # here we notice the user that the translation is over and the file is written
+            from gui import SubtitleTranslatorGUI
+            gui = SubtitleTranslatorGUI.get_instance()
+            gui.on_translate_button_clicked(True)
 
-            print(f"File successfully written to {file_path}")
         except Exception as e:
             print(f"Error writing to file: {e}")
 
